@@ -51,7 +51,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     compression::compress(&lines, freqs::char_frequencies, |line| line.chars())
                 }
                 Mode::Words => compression::compress(&lines, freqs::word_frequencies, |line| {
-                    line.split_ascii_whitespace().map(|token| token.to_string())
+                    line.split_ascii_whitespace()
+                        .map(|token| token.to_string())
+                        .collect::<Vec<String>>()
+                        .into_iter()
                 }),
             }?;
 

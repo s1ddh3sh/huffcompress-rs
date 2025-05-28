@@ -1,7 +1,7 @@
 use bit_vec::BitVec;
 use rayon::prelude::*;
 use rmp_serde;
-use serde::{Deserialize, Serialize, de};
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, hash::Hash};
 
 use crate::huffman::{self, Tree};
@@ -13,15 +13,15 @@ struct CompressedData<T: Eq + Hash> {
     data: Vec<BitVec>,
 }
 
-pub fn compress<T, FreqsF, TokenExtractor, TokensIter>(
-    lines: &Vec<String>,
+pub fn compress<'a, T, FreqsF, TokenExtractor, TokensIter>(
+    lines: &'a Vec<String>,
     get_freqs: FreqsF,
     line_to_tokens: TokenExtractor,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>>
 where
     T: Clone + Eq + Hash + Send + Sync + Serialize,
-    FreqsF: Fn(&Vec<String>) -> HashMap<T, u64>,
-    TokenExtractor: Fn(&str) -> TokensIter + Send + Sync,
+    FreqsF: Fn(&'a Vec<String>) -> HashMap<T, u64>,
+    TokenExtractor: Fn(&'a str) -> TokensIter + Send + Sync,
     TokensIter: Iterator<Item = T>,
 {
     let freqs = get_freqs(lines);
