@@ -13,15 +13,15 @@ struct CompressedData<T: Eq + Hash> {
     data: Vec<BitVec>,
 }
 
-pub fn comprees<T, FreqsF, TokenExtractor, TokensIter>(
-    lines: Vec<String>,
+pub fn compress<T, FreqsF, TokenExtractor, TokensIter>(
+    lines: &Vec<String>,
     get_freqs: FreqsF,
     line_to_tokens: TokenExtractor,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>>
 where
     T: Clone + Eq + Hash + Send + Sync + Serialize,
-    FreqsF: Fn(Vec<String>) -> HashMap<T, u64>,
-    TokenExtractor: Fn(str) -> TokensIter + Send + Sync,
+    FreqsF: Fn(&Vec<String>) -> HashMap<T, u64>,
+    TokenExtractor: Fn(&str) -> TokensIter + Send + Sync,
     TokensIter: Iterator<Item = T>,
 {
     let freqs = get_freqs(lines);
