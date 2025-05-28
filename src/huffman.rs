@@ -77,3 +77,78 @@ pub fn huffman_tree<T: Eq + Clone>(freqs: &HashMap<T, u64>) -> Tree<T> {
     }
     heap.pop().unwrap().0
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::freqs::*;
+
+    #[test]
+    fn freq_test() {
+        let input = vec!["this is an epic sentence".to_string(), "xyz ".to_string()];
+        let freqs = char_frequencies(&input);
+        assert_eq!(freqs[&' '], 5);
+        assert_eq!(freqs[&'t'], 2);
+        assert_eq!(freqs[&'i'], 3);
+        assert_eq!(freqs[&'p'], 1);
+        assert_eq!(freqs[&'z'], 1);
+        assert_eq!(freqs.keys().len(), 13);
+    }
+    #[test]
+    fn huffman_tree_test() {
+        let mut freqs = HashMap::new();
+        freqs.insert('a', 40);
+        freqs.insert('b', 35);
+        freqs.insert('c', 20);
+        freqs.insert('d', 5);
+
+        let tree = huffman_tree(&freqs);
+        assert_eq!(tree.freq(), 100);
+
+        //most frequent char encodes to 1 bit
+        assert_eq!(tree.left().and_then(|n| n.token()), Some('a'));
+        assert_eq!(tree.left().map(|n| n.freq()), Some(40));
+
+        //the second most frequent char encodes to 2 bits
+        assert_eq!(
+            tree.right().and_then(|t| t.right().and_then(|n| n.token())),
+            Some('b')
+        );
+        assert_eq!(
+            tree.right().and_then(|t| t.right()).map(|n| n.freq()),
+            Some(35)
+        );
+
+        //the least frequent char requires 3 bits
+        assert_eq!(
+            tree.right()
+                .and_then(|t| t.left())
+                .and_then(|t| t.left())
+                .and_then(|n| n.token()),
+            Some('d')
+        );
+        assert_eq!(
+            tree.right()
+                .and_then(|t| t.left())
+                .and_then(|t| t.left())
+                .map(|n| n.freq()),
+            Some(5)
+        );
+
+        assert_eq!(
+            tree.right()
+                .and_then(|t| t.left())
+                .and_then(|t| t.right())
+                .and_then(|n| n.token()),
+            Some('c')
+        );
+        assert_eq!(
+            tree.right()
+                .and_then(|t| t.left())
+                .and_then(|t| t.right())
+                .map(|n| n.freq()),
+            Some(20)
+        );
+    }
+}

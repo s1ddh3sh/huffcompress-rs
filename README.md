@@ -1,4 +1,4 @@
-# Huffman Coding Example in Rust
+# Huffman Based Encoding in Rust
 
 A text file compression and extraction tool in Rust using Huffman coding algorithm.
 Two approaches included: words(using individual word frequencies) & chars(using individual character frequencies) based; to test the speed, efficiency, losslessness.

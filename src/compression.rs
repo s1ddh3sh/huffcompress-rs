@@ -108,3 +108,29 @@ fn encoder_to_decoder<T: Clone>(encoder: &HashMap<T, BitVec>) -> HashMap<BitVec,
     }
     decoder
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::freqs;
+
+    #[test]
+    fn compress_decompress_text() {
+        let lines = vec![
+            "hey there! nice to meet you.".to_string(),
+            "Serde is a framework for serializing and deserializing Rust data structures"
+                .to_string(),
+        ];
+
+        let data = compress(&lines, freqs::char_frequencies, |line| line.chars()).unwrap();
+        let result_lines = extract(&data, |x: Vec<String>| x.into_iter().collect()).unwrap();
+        assert_eq!(&lines, &result_lines);
+
+        let data = compress(&lines, freqs::word_frequencies, |line| {
+            line.split_ascii_whitespace().map(|token| token.to_string())
+        })
+        .unwrap();
+        let result_lines = extract(&data, |x: Vec<String>| x.join(" ")).unwrap();
+        assert_eq!(&lines, &result_lines);
+    }
+}
